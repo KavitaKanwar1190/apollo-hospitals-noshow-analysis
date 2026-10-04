@@ -7,7 +7,7 @@
 
 An end-to-end exploratory data analysis of 75,000 hospital appointments, built to uncover why patients miss appointments, which interventions actually reduce no-shows, and what it costs the business — delivered as a notebook, a standalone script, and a recruiter-facing analytics dashboard.
 
-**[View the Live Dashboard →](docs/index.html)**
+**[View the Live Dashboard →](https://kavitakanwar1190.github.io/apollo-hospitals-noshow-analysis/)**
 
 ---
 
