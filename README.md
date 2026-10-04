@@ -1,4 +1,4 @@
-# Apollo Hospitals — Appointment No-Show & Patient Engagement Analysis
+ # Apollo Hospitals — Appointment No-Show & Patient Engagement Analysis
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/)
 [![pandas](https://img.shields.io/badge/pandas-3.0.1-150458.svg)](https://pandas.pydata.org/)
@@ -7,7 +7,7 @@
 
 An end-to-end exploratory data analysis of 75,000 hospital appointments, built to uncover why patients miss appointments, which interventions actually reduce no-shows, and what it costs the business — delivered as a notebook, a standalone script, and a recruiter-facing analytics dashboard.
 
-**[View the Live Dashboard →](docs/Apollo%20Hospitals%20%E2%80%94%20No-Show%20%26%20Patient%20Engagement%20Analysis.html)**
+**[View the Live Dashboard →](docs/index.html)**
 
 ---
 
@@ -186,7 +186,7 @@ Apollo_Hospitals_Project/
 │   ├── apollo_doctors_dim.csv
 │   └── Data Dictionary.docx
 ├── docs/
-│   └── Apollo Hospitals — No-Show & Patient Engagement Analysis.html
+│   └── index.html
 ├── notebooks/
 │   └── Apollo_Hospitals_EDA_Notebook.ipynb
 ├── scripts/
@@ -209,13 +209,13 @@ Apollo_Hospitals_Project/
 ```
    python scripts/apollo_full_script.py
 ```
-5. **Option C — Dashboard:** open `docs/Apollo Hospitals — No-Show & Patient Engagement Analysis.html` directly in a browser — no installation required.
+5. **Option C — Dashboard:** open `docs/index.html` directly in a browser — no installation required.
 
 ## Dashboard
 
-The full interactive dashboard — KPIs, charts, and insights for all 21 questions — is in [`docs/`](docs/Apollo%20Hospitals%20%E2%80%94%20No-Show%20%26%20Patient%20Engagement%20Analysis.html) and is also published via GitHub Pages:
+The full interactive dashboard — KPIs, charts, and insights for all 21 questions — is in [`docs/`](docs/index.html) and is also published via GitHub Pages:
 
-**Live link:** `https://kavitakanwar1190.github.io/apollo-hospitals-noshow-analysis/Apollo%20Hospitals%20%E2%80%94%20No-Show%20%26%20Patient%20Engagement%20Analysis.html`
+**Live link:** `https://kavitakanwar1190.github.io/apollo-hospitals-noshow-analysis/`
 
 ## Notebook & Script
 
@@ -224,14 +224,25 @@ The full interactive dashboard — KPIs, charts, and insights for all 21 questio
 
 ## Screenshots
 
-| | |
-|---|---|
-| ![Hero KPIs](assets/screenshots/01_hero_kpis.png) | ![No-Show by Specialty](assets/screenshots/02_noshow_by_specialty.png) |
-| **Dashboard overview — key KPIs** | **No-show rate by specialty** |
-| ![Reminder Effect](assets/screenshots/03_reminder_effect.png) | ![Revenue Lost](assets/screenshots/04_revenue_lost.png) |
-| **Reminder-type effectiveness** | **Estimated revenue lost to no-shows** |
-| ![Notebook Execution](assets/screenshots/05_notebook_execution.png) | |
-| **Executed notebook cell (reminder analysis)** | |
+### Dashboard Overview — Key KPIs
+
+![Hero KPIs](assets/screenshots/01_hero_kpis.png)
+
+### No-Show Rate by Specialty
+
+![No-Show by Specialty](assets/screenshots/02_noshow_by_specialty.png)
+
+### Reminder-Type Effectiveness
+
+![Reminder Effect](assets/screenshots/03_reminder_effect.png)
+
+### Estimated Revenue Lost to No-Shows
+
+![Revenue Lost](assets/screenshots/04_revenue_lost.png)
+
+### Executed Notebook Cell — Reminder Analysis
+
+![Notebook Execution](assets/screenshots/05_notebook_execution.png)
 
 ## Setup & Requirements
 
