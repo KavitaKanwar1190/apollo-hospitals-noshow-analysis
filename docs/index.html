@@ -1,0 +1,824 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apollo Hospitals — No-Show &amp; Patient Engagement Analysis</title>
+<style>
+:root{
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface-1: #151514;
+  --surface-2: #1a1a19;
+  --surface-3: #202020;
+  --border: rgba(255,255,255,0.10);
+  --border-strong: rgba(255,255,255,0.18);
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --baseline: #383835;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #e66767;
+  --s1: #3987e5; /* blue */
+  --s2: #d95926; /* orange */
+  --s3: #199e70; /* aqua */
+  --s4: #c98500; /* yellow */
+  --s5: #d55181; /* magenta */
+  --s6: #4caf50; /* green */
+  --s7: #9085e9; /* violet */
+  --s8: #e66767; /* red */
+  --radius: 16px;
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+*{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+body{
+  margin:0; background: var(--page); color: var(--text-primary); font-family: var(--font);
+  line-height: 1.6; -webkit-font-smoothing: antialiased;
+}
+.wrap{ max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+a{ color: inherit; }
+
+/* ======= NAV ======= */
+.topnav{
+  position: sticky; top:0; z-index: 50; backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--page) 78%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+.topnav-inner{
+  max-width:1180px; margin:0 auto; padding: 14px 24px; display:flex; align-items:center;
+  justify-content: space-between; gap: 20px;
+}
+.brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:15px; white-space:nowrap; }
+.brand .dot{ width:9px; height:9px; border-radius:50%; background: var(--s1); box-shadow: 0 0 0 4px color-mix(in srgb, var(--s1) 20%, transparent); }
+.navlinks{ display:flex; gap: 4px; overflow-x:auto; scrollbar-width:none; }
+.navlinks::-webkit-scrollbar{ display:none; }
+.navlinks a{
+  font-size: 13px; color: var(--text-secondary); text-decoration:none; padding: 7px 13px;
+  border-radius: 999px; white-space:nowrap; transition: all .15s; font-weight:500;
+}
+.navlinks a:hover, .navlinks a.active{ color: var(--text-primary); background: var(--surface-2); }
+
+/* ======= HERO ======= */
+.hero{ padding: 64px 0 44px; position:relative; }
+.hero::before{
+  content:""; position:absolute; top:-80px; left:50%; transform:translateX(-50%);
+  width: 900px; height: 420px; background: radial-gradient(circle, color-mix(in srgb, var(--s1) 14%, transparent), transparent 70%);
+  pointer-events:none; z-index:-1;
+}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; letter-spacing:.4px;
+  color: var(--s1); background: color-mix(in srgb, var(--s1) 14%, transparent); padding: 6px 14px;
+  border-radius: 999px; margin-bottom: 20px; border: 1px solid color-mix(in srgb, var(--s1) 30%, transparent);
+}
+h1.title{ font-size: clamp(32px, 5vw, 50px); font-weight: 800; line-height: 1.1; margin: 0 0 18px; max-width: 880px; letter-spacing:-0.5px; }
+p.lede{ font-size: 17.5px; color: var(--text-secondary); max-width: 680px; margin: 0 0 36px; }
+
+.kpi-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 8px; }
+@media (max-width: 980px){ .kpi-grid{ grid-template-columns: repeat(2,1fr); } }
+.kpi{
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 18px 16px; position:relative; overflow:hidden;
+}
+.kpi .k-label{ font-size: 12px; color: var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
+.kpi .k-val{ font-size: 27px; font-weight: 800; letter-spacing:-0.5px; font-variant-numeric: tabular-nums; }
+.kpi .k-sub{ font-size: 12.5px; color: var(--text-muted); margin-top: 6px; }
+.kpi.accent-good .k-val{ color: var(--good); }
+.kpi.accent-crit .k-val{ color: var(--critical); }
+.kpi.accent-blue .k-val{ color: var(--s1); }
+
+/* ======= SECTION SHELL ======= */
+.section{ padding: 72px 0; border-top: 1px solid var(--border); }
+.section:first-of-type{ border-top: none; }
+.sec-head{ margin-bottom: 36px; max-width: 720px; }
+.sec-tag{
+  display:inline-block; font-size: 12px; font-weight:700; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 10px; font-family: var(--mono);
+}
+.sec-head h2{ font-size: 28px; font-weight: 800; margin: 0 0 10px; letter-spacing:-0.3px; }
+.sec-head p{ color: var(--text-secondary); font-size: 15.5px; margin:0; }
+
+/* ======= CARD ======= */
+.card{
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 22px 22px 18px; margin-bottom: 20px;
+}
+.card-head{ display:flex; justify-content: space-between; align-items: flex-start; gap:16px; margin-bottom: 4px; flex-wrap:wrap; }
+.card-head h3{ font-size: 16px; font-weight: 700; margin: 0; }
+.qtag{ font-family: var(--mono); font-size: 11.5px; color: var(--s1); background: color-mix(in srgb, var(--s1) 16%, transparent); padding: 2px 9px; border-radius: 6px; font-weight:700; }
+.card-q{ font-size: 13px; color: var(--text-muted); font-style: italic; margin: 6px 0 16px; }
+.chart-box{ position: relative; margin: 6px 0 4px; }
+.grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+@media (max-width: 860px){ .grid2, .grid3{ grid-template-columns: 1fr; } }
+
+/* finding callout */
+.finding{
+  display:flex; gap: 12px; align-items:flex-start; background: var(--surface-2); border: 1px solid var(--border);
+  border-left: 3px solid var(--s1); border-radius: 10px; padding: 14px 16px; margin-top: 14px; font-size: 14px; color: var(--text-secondary);
+}
+.finding.hot{ border-left-color: var(--warning); }
+.finding .ic{ flex-shrink:0; width:20px; height:20px; margin-top:1px; color: var(--s1); }
+.finding.hot .ic{ color: var(--warning); }
+.finding strong{ color: var(--text-primary); }
+.finding .tiny{ display:block; margin-top:6px; color: var(--text-muted); font-size: 12.5px; }
+
+/* legend */
+.legend{ display:flex; gap:16px; flex-wrap:wrap; margin: 2px 0 14px; font-size: 12.5px; color: var(--text-secondary); }
+.legend span{ display:inline-flex; align-items:center; gap:6px; }
+.legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+/* table fallback */
+table.dt{ width:100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+table.dt th{ text-align:left; padding: 7px 10px; color: var(--text-muted); font-size:11.5px; text-transform:uppercase; letter-spacing:.3px; border-bottom: 1px solid var(--border); }
+table.dt td{ padding: 7px 10px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+details.tablewrap{ margin-top: 10px; }
+details.tablewrap summary{ cursor:pointer; font-size:12.5px; color: var(--text-muted); padding: 4px 0; }
+details.tablewrap summary:hover{ color: var(--text-secondary); }
+
+/* big stat split */
+.stat-split{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin: 4px 0 16px; }
+@media (max-width:860px){ .stat-split{ grid-template-columns: 1fr; } }
+.stat-box{ background: var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:18px; text-align:center; }
+.stat-box .big{ font-size: 32px; font-weight:800; font-variant-numeric: tabular-nums; }
+.stat-box .lbl{ font-size:12.5px; color: var(--text-muted); margin-top:6px; }
+.stat-box.warn .big{ color: var(--critical); }
+.stat-box.ok .big{ color: var(--good); }
+
+/* rules grid */
+.rules-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:14px; }
+@media (max-width: 900px){ .rules-grid{ grid-template-columns: repeat(2,1fr); } }
+.rule{ background: var(--surface-1); border:1px solid var(--border); border-radius: 12px; padding:16px; }
+.rule .rn{ font-family: var(--mono); font-size: 11px; color: var(--s1); font-weight:700; text-transform:uppercase; letter-spacing:.4px; display:block; margin-bottom:8px; }
+.rule p{ font-size: 13.3px; color: var(--text-secondary); margin:0; }
+.rule code{ font-family:var(--mono); background: var(--surface-3); padding: 1px 5px; border-radius:4px; font-size:12px; color:var(--text-primary); }
+
+/* takeaways */
+.tk-list{ list-style:none; padding:0; margin: 0; counter-reset: tk; display:grid; gap:12px; }
+.tk-list li{
+  counter-increment: tk; position:relative; padding: 16px 18px 16px 58px; background: var(--surface-1);
+  border:1px solid var(--border); border-radius: 12px; font-size: 14.5px; color: var(--text-secondary);
+}
+.tk-list li strong{ color: var(--text-primary); }
+.tk-list li::before{
+  content: counter(tk); position:absolute; left:16px; top:16px; width:28px; height:28px; border-radius:8px;
+  background: color-mix(in srgb, var(--s1) 18%, transparent); color: var(--s1); font-weight:800; font-family: var(--mono);
+  display:flex; align-items:center; justify-content:center; font-size:13px;
+}
+
+footer{ text-align:center; padding: 48px 0 64px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
+footer .stack{ font-family: var(--mono); font-size:12px; margin-top:8px; }
+
+.scatter-tip{ font-size:12px; color:var(--text-muted); margin-top:8px; }
+canvas{ max-width:100%; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="brand"><span class="dot"></span>Apollo No-Show Analysis</div>
+    <div class="navlinks" id="navlinks">
+      <a href="#overview">Overview</a>
+      <a href="#noshow">No-Shows</a>
+      <a href="#engagement">Engagement</a>
+      <a href="#segmentation">Segmentation</a>
+      <a href="#financial">Financial</a>
+      <a href="#operations">Operations</a>
+      <a href="#takeaways">Takeaways</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="hero">
+    <span class="eyebrow">Data Analytics Portfolio &middot; Python · pandas · EDA</span>
+    <h1 class="title">Why do Apollo Hospitals patients miss their appointments?</h1>
+    <p class="lede">A ground-up analysis of 75,000 appointments across 15 cities and 320 doctors — built to find where no-show risk concentrates, what actually improves attendance, and what it costs the hospital in lost revenue.</p>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="k-label">Appointments analysed</div><div class="k-val">75,000</div><div class="k-sub">2022 &ndash; 2024 &middot; 15 cities</div></div>
+      <div class="kpi accent-crit"><div class="k-label">Overall no-show rate</div><div class="k-val">15.9%</div><div class="k-sub">of Completed + No-Show + Cancelled</div></div>
+      <div class="kpi accent-crit"><div class="k-label">Revenue lost to no-shows</div><div class="k-val">₹1.57Cr</div><div class="k-sub">specialty-weighted estimate</div></div>
+      <div class="kpi accent-good"><div class="k-label">Best reminder combo cuts risk by</div><div class="k-val">&minus;18.8pp</div><div class="k-sub">SMS + WhatsApp + Call vs none</div></div>
+      <div class="kpi accent-good"><div class="k-label">Repeat vs first-time gap</div><div class="k-val">8x</div><div class="k-sub">66.8% vs 8.6% no-show rate</div></div>
+    </div>
+  </div>
+
+  <section class="section" id="context">
+    <div class="sec-head">
+      <span class="sec-tag">Problem</span>
+      <h2>Business context</h2>
+      <p>Apollo Hospitals runs in-clinic, video, and home-visit appointments across 15 cities, booked through five channels (App, Website, Call Centre, Walk-In, Partner App). A meaningful share of booked appointments end in no-shows — hurting doctor utilisation, revenue, and patient outcomes. This project analyses the full appointment fact table joined against a 320-doctor reference table to find where that risk concentrates and what reduces it.</p>
+    </div>
+    <div class="rules-grid">
+      <div class="rule"><span class="rn">Rule 01</span><p><strong>No-show rate</strong> = No-Show &divide; (Completed + No-Show + Cancelled). Scheduled (future) appointments are excluded from every rate.</p></div>
+      <div class="rule"><span class="rn">Rule 02</span><p><strong>Revenue metrics</strong> scoped to <code>Completed</code> only — No-Show / Cancelled rows carry ₹0 revenue by design.</p></div>
+      <div class="rule"><span class="rn">Rule 03</span><p><strong>Quality metrics</strong> (wait time, duration, satisfaction, utilisation) only exist for appointments that happened — Completed only.</p></div>
+      <div class="rule"><span class="rn">Rule 04</span><p><strong>"None"</strong> in chronic condition / membership / insurer / cancellation reason means Not Applicable — a real category, never dropped.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="overview">
+    <div class="sec-head">
+      <span class="sec-tag">Section A</span>
+      <h2>Business overview</h2>
+      <p>Volume trends, appointment outcomes, and how patients actually book.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Appointment volume, month by month</h3><span class="qtag">Q1</span></div>
+      <p class="card-q">How is appointment volume trending across months and quarters, 2022&ndash;2024?</p>
+      <div class="chart-box" style="height:300px;"><canvas id="chartMonthly"></canvas></div>
+      <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg><div><strong>A clear seasonal pattern repeats every year</strong> — Q4 is consistently the strongest quarter (6,780 in 2022, 6,998 in 2023, 6,864 in 2024), while Q2/Q3 are consistently the softest.</div></div>
+      <div class="chart-box" style="height:260px; margin-top:20px;"><canvas id="chartQuarterly"></canvas></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>Appointment outcome split</h3><span class="qtag">Q2</span></div>
+        <p class="card-q">What's the split across Completed, No-Show, Cancelled, Scheduled?</p>
+        <div class="chart-box" style="height:260px;"><canvas id="chartOutcome"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Booking channel volume</h3><span class="qtag">Q3</span></div>
+        <p class="card-q">Which channels drive the highest booking volume?</p>
+        <div class="chart-box" style="height:260px;"><canvas id="chartChannel"></canvas></div>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><div>The <strong>Apollo App drives 45.4%</strong> of all bookings — more than Website, Call Centre, and Partner App combined.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="noshow">
+    <div class="sec-head">
+      <span class="sec-tag">Section B</span>
+      <h2>No-show analysis</h2>
+      <p>Where risk concentrates — specialty, city, timing, and how the visit was booked.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>No-show rate by specialty</h3><span class="qtag">Q4</span></div>
+        <p class="card-q">Which specialties have the highest / lowest no-show rates?</p>
+        <div class="chart-box" style="height:380px;"><canvas id="chartSpecialtyNS"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>No-show rate by city</h3><span class="qtag">Q4</span></div>
+        <p class="card-q">Which cities have the highest / lowest no-show rates?</p>
+        <div class="chart-box" style="height:380px;"><canvas id="chartCityNS"></canvas></div>
+      </div>
+    </div>
+    <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg><div><strong>Psychiatry (24.5%)</strong> and Dermatology (21.3%) carry the highest specialty risk; Neurology is most reliable (10.7%). City spread is far tighter — Lucknow (17.2%) to Pune (13.3%), a 4-point range vs a 14-point range across specialties.</div></div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-head"><h3>Booking lead time vs no-show rate</h3><span class="qtag">Q5</span></div>
+      <p class="card-q">How does booking lead time affect the probability of a no-show?</p>
+      <div class="chart-box" style="height:300px;"><canvas id="chartLeadNS"></canvas></div>
+      <div class="finding hot"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h8l-1 8 10-12h-8z"/></svg><div><strong>One of the cleanest patterns in the dataset:</strong> no-show rate rises steadily and monotonically the further out a booking is made — 13.2% at 1 day to 20.0% at 15&ndash;30 days.</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>Time of day &amp; weekend effect</h3><span class="qtag">Q6</span></div>
+        <p class="card-q">Do evening slots and weekends see higher dropout?</p>
+        <div class="chart-box" style="height:260px;"><canvas id="chartTimeWeekend"></canvas></div>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div><strong>Evening (18.4%)</strong> runs highest vs Morning (13.7%). <strong>Weekends (18.7%)</strong> also run meaningfully higher than weekdays (14.8%).</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Appointment type &amp; channel risk</h3><span class="qtag">Q7</span></div>
+        <p class="card-q">Which appointment types / channels carry the most risk?</p>
+        <div class="chart-box" style="height:260px;"><canvas id="chartTypeChannel"></canvas></div>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/></svg><div><strong>Home Visit (26.2%)</strong> is over 2x riskier than In-Clinic (12.2%). Walk-In is the riskiest channel (20.9%).</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="engagement">
+    <div class="sec-head">
+      <span class="sec-tag">Section C</span>
+      <h2>Reminder &amp; engagement effectiveness</h2>
+      <p>What actually moves the needle on attendance.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>No-show rate by reminder type</h3><span class="qtag">Q8</span></div>
+      <p class="card-q">How much does each reminder channel reduce no-show rate vs no reminder?</p>
+      <div class="chart-box" style="height:300px;"><canvas id="chartReminder"></canvas></div>
+      <div class="finding hot"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><div>Each additional reminder channel keeps reducing no-shows — <strong>No Reminder 30.2% &rarr; SMS 16.3% &rarr; +WhatsApp 13.5% &rarr; +Call 11.4%</strong> — with no sign of diminishing returns. The single most actionable lever in this project.</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>Prior no-show history</h3><span class="qtag">Q9</span></div>
+        <p class="card-q">Does prior no-show history predict future behaviour?</p>
+        <div class="chart-box" style="height:260px;"><canvas id="chartPriorNS"></canvas></div>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg><div>A clean, steady escalation — 15.2% (0 priors) up to 32.7% (3+ priors). Patients with 3+ prior no-shows are <strong>more than 2x</strong> as likely to no-show again.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Members &amp; repeat patients</h3><span class="qtag">Q10</span></div>
+        <p class="card-q">Do members and repeat patients show better attendance?</p>
+        <div class="stat-split">
+          <div class="stat-box ok"><div class="big">12.7%</div><div class="lbl">Apollo members<br><span style="color:var(--text-muted)">vs 16.9% non-members</span></div></div>
+          <div class="stat-box warn"><div class="big">66.8%</div><div class="lbl">First-time patients<br><span style="color:var(--text-muted)">vs 8.6% repeat patients</span></div></div>
+        </div>
+        <div class="finding hot"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h8l-1 8 10-12h-8z"/></svg><div><strong>The single biggest finding in this project:</strong> first-time patients no-show at nearly <strong>8x</strong> the rate of repeat patients. This one factor dwarfs every other variable measured.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="segmentation">
+    <div class="sec-head">
+      <span class="sec-tag">Section D</span>
+      <h2>Patient &amp; demographic segmentation</h2>
+      <p>Who is most likely to miss an appointment.</p>
+    </div>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="card-head"><h3>By age group</h3><span class="qtag">Q11</span></div>
+        <div class="chart-box" style="height:230px;"><canvas id="chartAgeNS"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>By gender</h3><span class="qtag">Q11</span></div>
+        <div class="chart-box" style="height:230px;"><canvas id="chartGenderNS"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Chronic condition</h3><span class="qtag">Q11</span></div>
+        <div class="chart-box" style="height:230px;"><canvas id="chartChronicNS"></canvas></div>
+      </div>
+    </div>
+    <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><div>Adults 31&ndash;45 (18.0%) and Young Adults (17.9%) carry the highest risk; children and seniors are most reliable. <strong>Gender and chronic-condition status show almost no difference</strong> — neither is a meaningful driver on its own.</div></div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-head"><h3>Visit reason — volume vs no-show rate</h3><span class="qtag">Q12</span></div>
+      <p class="card-q">Which visit reasons are most common, and are some tied to higher dropout?</p>
+      <div class="grid2">
+        <div class="chart-box" style="height:360px;"><canvas id="chartReasonVol"></canvas></div>
+        <div class="chart-box" style="height:360px;"><canvas id="chartReasonNS"></canvas></div>
+      </div>
+      <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/></svg><div><strong>Follow-up is the highest-volume reason</strong> (~8,500 visits) yet one of the lowest no-show rates (15.2%) — a positive sign for continuity of care. The spread across all 14 reasons is narrow (14.6%&ndash;16.8%), so visit reason alone is a weak predictor.</div></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-head"><h3>Patient age distribution by specialty</h3><span class="qtag">Q13</span></div>
+      <p class="card-q">What does the age distribution look like in Paediatrics, Gynaecology, and Psychiatry?</p>
+      <div class="chart-box" style="height:300px;"><canvas id="chartAgeBox"></canvas></div>
+      <p class="scatter-tip">Box shows the 25th&ndash;75th percentile range; the marker is the median. Whiskers show min/max.</p>
+      <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><div>Paediatrics behaves exactly as expected (median age 9). Gynaecology and Psychiatry both skew adult with a wide spread. <span class="tiny">Data observation: both Gynaecology and Psychiatry show a minimum patient age of 1, unusual for these specialties — flagged as a data quality note, not a business finding.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="financial">
+    <div class="sec-head">
+      <span class="sec-tag">Section E</span>
+      <h2>Financial performance</h2>
+      <p>What no-shows cost, and where revenue actually comes from.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Estimated revenue lost to no-shows, by specialty</h3><span class="qtag">Q14</span></div>
+      <p class="card-q">How much revenue is being lost to no-shows?</p>
+      <div class="stat-split">
+        <div class="stat-box warn"><div class="big">₹1.97Cr</div><div class="lbl">Billed value at risk (listed fee, all No-Shows)</div></div>
+        <div class="stat-box warn"><div class="big">₹1.57Cr</div><div class="lbl">Modeled loss (specialty-weighted, realistic estimate)</div></div>
+      </div>
+      <div class="chart-box" style="height:380px;"><canvas id="chartRevenueLost"></canvas></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>Average revenue by specialty</h3><span class="qtag">Q15</span></div>
+        <div class="chart-box" style="height:380px;"><canvas id="chartRevSpecialty"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Average revenue by appointment type</h3><span class="qtag">Q15</span></div>
+        <div class="chart-box" style="height:260px;"><canvas id="chartRevType"></canvas></div>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/></svg><div><strong>Home Visit earns the most per visit (₹1,960)</strong> despite having the worst no-show rate — a real tension between per-visit value and reliability.</div></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>Total revenue by city</h3><span class="qtag">Q16</span></div>
+        <div class="chart-box" style="height:380px;"><canvas id="chartRevCity"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Payment mode mix</h3><span class="qtag">Q16</span></div>
+        <div class="chart-box" style="height:300px;"><canvas id="chartPaymentMix"></canvas></div>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><div>Insurance is the single largest payment mode (21.1%); the remaining six modes each sit close to 13%.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Insurance vs out-of-pocket payment</h3><span class="qtag">Q17</span></div>
+      <p class="card-q">How does insurance coverage affect what patients pay out of pocket?</p>
+      <div class="chart-box" style="height:260px;"><canvas id="chartInsuranceOOP"></canvas></div>
+      <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h8l-1 8 10-12h-8z"/></svg><div>Insured patients pay roughly <strong>45% less</strong> out of pocket on average (₹859 vs ₹1,563). <span class="tiny">Data observation: 39.9% of insured Completed appointments show the insurer paying ₹0 — worth a billing-team follow-up, not a business finding.</span></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="operations">
+    <div class="sec-head">
+      <span class="sec-tag">Section F</span>
+      <h2>Doctor utilisation &amp; service quality</h2>
+      <p>Is capacity the bottleneck, or is this purely a patient-engagement problem?</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Doctor utilisation by specialty</h3><span class="qtag">Q18</span></div>
+      <div class="chart-box" style="height:380px;"><canvas id="chartUtilisation"></canvas></div>
+      <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16"/></svg><div>Utilisation is <strong>extremely tight across every specialty (76.2%&ndash;77.3%)</strong> — a one-point spread. No specialty is meaningfully over- or under-utilised.</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>Wait time by specialty</h3><span class="qtag">Q19</span></div>
+        <div class="chart-box" style="height:380px;"><canvas id="chartWaitSpecialty"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Wait time by time of day</h3><span class="qtag">Q19</span></div>
+        <div class="chart-box" style="height:260px;"><canvas id="chartWaitTime"></canvas></div>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><div>Also tightly clustered: 11.2&ndash;12.0 min average, median a flat 8 min almost everywhere. No operational bottleneck stands out.</div></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><h3>Consultation duration vs satisfaction</h3><span class="qtag">Q20</span></div>
+        <p class="card-q" id="durationCorrLabel"></p>
+        <div class="chart-box" style="height:300px;"><canvas id="chartDurationScatter"></canvas></div>
+        <p class="scatter-tip">Sampled points from the Completed population (n = 55,275), shown for pattern only.</p>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16"/></svg><div><strong>No relationship.</strong> Average satisfaction is identical (4.07) across every duration band. Consultation length does not drive satisfaction in this data.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Doctor experience vs standard fee</h3><span class="qtag">Q21</span></div>
+        <p class="card-q" id="feeCorrLabel"></p>
+        <div class="chart-box" style="height:300px;"><canvas id="chartExperienceScatter"></canvas></div>
+        <p class="scatter-tip">Every doctor in the reference table (n = 320), real data.</p>
+        <div class="finding"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h8l-1 8 10-12h-8z"/></svg><div><strong>A real, statistically significant relationship.</strong> Average fee rises steadily with experience band, from ₹1,320 to ₹1,850 — confirming pricing reflects doctor seniority.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="takeaways">
+    <div class="sec-head">
+      <span class="sec-tag">Synthesis</span>
+      <h2>Overall takeaways</h2>
+      <p>Pulling all 21 findings into what actually matters for the business.</p>
+    </div>
+    <ul class="tk-list">
+      <li><strong>First-time patients are the core risk group:</strong> they no-show at 66.8% vs 8.6% for repeat patients — an 8x gap that dwarfs every other factor measured.</li>
+      <li><strong>Reminders work, and work progressively:</strong> each added channel (SMS &rarr; +WhatsApp &rarr; +Call) keeps cutting no-shows, from 30.2% down to 11.4%, with no sign of plateauing.</li>
+      <li><strong>Risk factors compound in a predictable direction:</strong> longer lead time, evening slots, weekends, Home Visit bookings, and prior no-show history all point the same way — a strong candidate for a single composite risk score.</li>
+      <li><strong>This is a patient-engagement problem, not a capacity problem:</strong> doctor utilisation (76&ndash;77%) and wait times (11&ndash;12 min) are remarkably consistent across every specialty — hospital operations are not the bottleneck.</li>
+      <li><strong>The financial exposure is concrete:</strong> an estimated ₹1.57 crore in annual revenue lost to no-shows gives a clear number to justify investment in a stronger reminder/engagement program.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Apollo Hospitals Appointment No-Show &amp; Patient Engagement Analysis
+    <div class="stack">Python &middot; pandas &middot; EDA across 75,000 appointments &middot; 320 doctors &middot; 15 cities</div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DATA = {"monthly_volume": {"labels": ["2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12"], "values": [2426, 2012, 2085, 1926, 2033, 1823, 1833, 1835, 2115, 2206, 2299, 2275, 2371, 2013, 2103, 1964, 2002, 1896, 1884, 1785, 2038, 2278, 2329, 2391, 2427, 2078, 2033, 2024, 2013, 1862, 1862, 1832, 2083, 2291, 2225, 2348]}, "quarterly_volume": {"years": [2022, 2023, 2024], "quarters": ["Q1", "Q2", "Q3", "Q4"], "data": [[6523, 5782, 5783, 6780], [6487, 5862, 5707, 6998], [6538, 5899, 5777, 6864]]}, "outcome_split": {"labels": ["Completed", "No-Show", "Cancelled", "Scheduled"], "values": [55275, 11584, 5793, 2348]}, "channel_volume": {"labels": ["Apollo App", "Website", "Call Centre", "Walk-In", "Partner App"], "values": [34042, 18545, 11201, 7501, 3711]}, "specialty_ns": [{"specialty": "Psychiatry", "no_show_rate": 24.5, "appointments": 2900}, {"specialty": "Dermatology", "no_show_rate": 21.3, "appointments": 7566}, {"specialty": "ENT", "no_show_rate": 19.0, "appointments": 5211}, {"specialty": "Endocrinology", "no_show_rate": 17.5, "appointments": 2024}, {"specialty": "Ophthalmology", "no_show_rate": 16.2, "appointments": 3103}, {"specialty": "General Physician", "no_show_rate": 15.5, "appointments": 19654}, {"specialty": "Pulmonology", "no_show_rate": 15.5, "appointments": 2549}, {"specialty": "Gastroenterology", "no_show_rate": 14.9, "appointments": 2527}, {"specialty": "Orthopaedics", "no_show_rate": 14.9, "appointments": 5419}, {"specialty": "Urology", "no_show_rate": 14.4, "appointments": 2222}, {"specialty": "Gynaecology", "no_show_rate": 14.3, "appointments": 3991}, {"specialty": "Cardiology", "no_show_rate": 14.0, "appointments": 4484}, {"specialty": "Paediatrics", "no_show_rate": 12.2, "appointments": 6185}, {"specialty": "Neurology", "no_show_rate": 10.7, "appointments": 4817}], "city_ns": [{"city": "Lucknow", "no_show_rate": 17.2, "appointments": 3001}, {"city": "Mumbai", "no_show_rate": 17.0, "appointments": 9734}, {"city": "Delhi", "no_show_rate": 16.9, "appointments": 10404}, {"city": "Bhopal", "no_show_rate": 16.8, "appointments": 2001}, {"city": "Kolkata", "no_show_rate": 16.4, "appointments": 5701}, {"city": "Kochi", "no_show_rate": 16.3, "appointments": 2690}, {"city": "Ahmedabad", "no_show_rate": 16.2, "appointments": 3468}, {"city": "Jaipur", "no_show_rate": 16.2, "appointments": 2653}, {"city": "Hyderabad", "no_show_rate": 16.0, "appointments": 7229}, {"city": "Bengaluru", "no_show_rate": 15.4, "appointments": 8343}, {"city": "Chandigarh", "no_show_rate": 15.1, "appointments": 2406}, {"city": "Chennai", "no_show_rate": 15.0, "appointments": 6702}, {"city": "Coimbatore", "no_show_rate": 14.2, "appointments": 2162}, {"city": "Indore", "no_show_rate": 14.1, "appointments": 2149}, {"city": "Pune", "no_show_rate": 13.3, "appointments": 4009}], "lead_ns": [{"lead_time_group": "0 (Same day)", "no_show_rate": 15.8, "appointments": 20180}, {"lead_time_group": "1 day", "no_show_rate": 13.2, "appointments": 10453}, {"lead_time_group": "2-3 days", "no_show_rate": 15.1, "appointments": 15022}, {"lead_time_group": "4-7 days", "no_show_rate": 16.5, "appointments": 15897}, {"lead_time_group": "8-14 days", "no_show_rate": 18.8, "appointments": 8758}, {"lead_time_group": "15-30 days", "no_show_rate": 20.0, "appointments": 2342}], "time_of_day_ns": [{"time_of_day": "Evening", "no_show_rate": 18.4, "appointments": 14553}, {"time_of_day": "Afternoon", "no_show_rate": 17.8, "appointments": 23231}, {"time_of_day": "Morning", "no_show_rate": 13.7, "appointments": 34868}], "weekend_ns": [{"is_weekend": "Weekend", "no_show_rate": 18.7, "appointments": 20921}, {"is_weekend": "Weekday", "no_show_rate": 14.8, "appointments": 51731}], "type_ns": [{"appointment_type": "Home Visit", "no_show_rate": 26.2, "appointments": 9742}, {"appointment_type": "Video Consult", "no_show_rate": 21.1, "appointments": 15349}, {"appointment_type": "In-Clinic", "no_show_rate": 12.2, "appointments": 47561}], "channel_ns": [{"booking_channel": "Walk-In", "no_show_rate": 20.9, "appointments": 7281}, {"booking_channel": "Partner App", "no_show_rate": 18.1, "appointments": 3594}, {"booking_channel": "Website", "no_show_rate": 17.2, "appointments": 17964}, {"booking_channel": "Call Centre", "no_show_rate": 15.2, "appointments": 10855}, {"booking_channel": "Apollo App", "no_show_rate": 14.2, "appointments": 32958}], "reminder_ns": [{"reminder_type": "No Reminder", "no_show_rate": 30.2, "appointments": 10977}, {"reminder_type": "SMS Only", "no_show_rate": 16.3, "appointments": 14527}, {"reminder_type": "SMS + WhatsApp", "no_show_rate": 13.5, "appointments": 25273}, {"reminder_type": "SMS + WhatsApp + Call", "no_show_rate": 11.4, "appointments": 21875}], "prior_ns": [{"prior_no_show_group": "0", "no_show_rate": 15.2, "appointments": 63014}, {"prior_no_show_group": "1", "no_show_rate": 20.3, "appointments": 8502}, {"prior_no_show_group": "2", "no_show_rate": 26.7, "appointments": 983}, {"prior_no_show_group": "3+", "no_show_rate": 32.7, "appointments": 153}], "member_ns": [{"apollo_member": "No", "no_show_rate": 16.9, "appointments": 56428}, {"apollo_member": "Yes", "no_show_rate": 12.7, "appointments": 16224}], "repeat_ns": [{"repeat_visit": "No", "no_show_rate": 66.8, "appointments": 9182}, {"repeat_visit": "Yes", "no_show_rate": 8.6, "appointments": 63470}], "age_ns": [{"age_group": "Child (0-12)", "no_show_rate": 13.5, "appointments": 11745}, {"age_group": "Teen (13-18)", "no_show_rate": 14.7, "appointments": 6379}, {"age_group": "Young Adult (19-30)", "no_show_rate": 17.9, "appointments": 10017}, {"age_group": "Adult (31-45)", "no_show_rate": 18.0, "appointments": 15133}, {"age_group": "Middle-aged (46-60)", "no_show_rate": 16.8, "appointments": 14862}, {"age_group": "Senior (60+)", "no_show_rate": 14.0, "appointments": 14516}], "gender_ns": [{"patient_gender": "Female", "no_show_rate": 16.0, "appointments": 37589}, {"patient_gender": "Male", "no_show_rate": 15.8, "appointments": 35063}], "chronic_ns": [{"chronic_flag": "Yes", "no_show_rate": 16.0, "appointments": 45508}, {"chronic_flag": "No", "no_show_rate": 15.9, "appointments": 27144}], "reason_volume": {"labels": ["Follow-up", "Routine Checkup", "Chronic Condition Management", "Digestive Problem", "Fever & Infection", "Joint Pain", "Respiratory Issue", "Injury", "Eye Care", "Skin Issue", "Mental Health", "Cardiac Concern", "Women's Health", "Child Health"], "values": [8807, 8637, 8380, 8245, 7041, 6664, 6590, 6087, 2959, 2862, 2830, 2708, 2449, 741]}, "reason_ns": [{"visit_reason": "Skin Issue", "no_show_rate": 16.8, "appointments": 2782}, {"visit_reason": "Joint Pain", "no_show_rate": 16.7, "appointments": 6469}, {"visit_reason": "Cardiac Concern", "no_show_rate": 16.3, "appointments": 2639}, {"visit_reason": "Mental Health", "no_show_rate": 16.3, "appointments": 2733}, {"visit_reason": "Digestive Problem", "no_show_rate": 16.2, "appointments": 7984}, {"visit_reason": "Fever & Infection", "no_show_rate": 16.1, "appointments": 6808}, {"visit_reason": "Injury", "no_show_rate": 16.1, "appointments": 5884}, {"visit_reason": "Women's Health", "no_show_rate": 16.0, "appointments": 2362}, {"visit_reason": "Respiratory Issue", "no_show_rate": 16.0, "appointments": 6383}, {"visit_reason": "Chronic Condition Management", "no_show_rate": 15.6, "appointments": 8117}, {"visit_reason": "Routine Checkup", "no_show_rate": 15.6, "appointments": 8377}, {"visit_reason": "Eye Care", "no_show_rate": 15.5, "appointments": 2869}, {"visit_reason": "Follow-up", "no_show_rate": 15.2, "appointments": 8528}, {"visit_reason": "Child Health", "no_show_rate": 14.6, "appointments": 717}], "age_distribution": [{"specialty": "Gynaecology", "count": 4113.0, "mean": 41.7, "std": 21.7, "min": 1.0, "25%": 25.0, "50%": 42.0, "75%": 59.0, "max": 85.0}, {"specialty": "Paediatrics", "count": 6382.0, "mean": 9.3, "std": 5.0, "min": 1.0, "25%": 5.0, "50%": 9.0, "75%": 14.0, "max": 18.0}, {"specialty": "Psychiatry", "count": 2989.0, "mean": 42.0, "std": 21.7, "min": 1.0, "25%": 25.0, "50%": 42.0, "75%": 59.0, "max": 85.0}], "revenue_lost": {"billed_at_risk": 19725460, "modeled_total": 15656318, "by_specialty": [["Dermatology", 2101531.0], ["General Physician", 1929389.0], ["Psychiatry", 1877358.0], ["Orthopaedics", 1253230.0], ["Cardiology", 1220741.0], ["ENT", 1190023.0], ["Neurology", 1069387.0], ["Gynaecology", 853268.0], ["Ophthalmology", 737964.0], ["Paediatrics", 717993.0], ["Gastroenterology", 715100.0], ["Pulmonology", 710472.0], ["Endocrinology", 643503.0], ["Urology", 636359.0]]}, "revenue_by_specialty": [["Psychiatry", 2640.0], ["Neurology", 2076.0], ["Urology", 1989.0], ["Cardiology", 1941.0], ["Gastroenterology", 1897.0], ["Endocrinology", 1813.0], ["Pulmonology", 1803.0], ["Orthopaedics", 1547.0], ["Gynaecology", 1500.0], ["Ophthalmology", 1467.0], ["Dermatology", 1307.0], ["ENT", 1204.0], ["Paediatrics", 950.0], ["General Physician", 633.0]], "revenue_by_type": [["Home Visit", 1960.0], ["In-Clinic", 1300.0], ["Video Consult", 1098.0]], "revenue_by_city": [["Bengaluru", 9990616], ["Delhi", 9958247], ["Mumbai", 8989613], ["Hyderabad", 7503245], ["Chennai", 7188473], ["Kolkata", 6543084], ["Pune", 4734139], ["Ahmedabad", 3956890], ["Lucknow", 3177444], ["Indore", 2223207], ["Chandigarh", 2221091], ["Jaipur", 2199116], ["Coimbatore", 1792804], ["Kochi", 1731448], ["Bhopal", 1684381]], "payment_mix": {"labels": ["Insurance", "Debit Card", "Net Banking", "Apollo Pay", "UPI", "Credit Card", "Cash"], "values": [21.1, 13.3, 13.3, 13.3, 13.1, 13.0, 12.9]}, "insurance_oop": [{"insurance_coverage": "No", "avg_oop": 1562.8, "avg_share": 100.0, "n": 37523}, {"insurance_coverage": "Yes", "avg_oop": 859.2, "avg_share": 55.1, "n": 17752}], "insurance_zero_covered": {"zero": 7091, "total": 17752}, "utilisation_by_specialty": [["Gastroenterology", 77.3], ["Endocrinology", 77.1], ["Cardiology", 76.8], ["Gynaecology", 76.8], ["Paediatrics", 76.7], ["Neurology", 76.6], ["General Physician", 76.6], ["Urology", 76.4], ["Orthopaedics", 76.4], ["Dermatology", 76.4], ["Pulmonology", 76.4], ["ENT", 76.3], ["Ophthalmology", 76.2], ["Psychiatry", 76.2]], "wait_by_specialty": [["Ophthalmology", 12.0, 8.0], ["Urology", 11.9, 8.0], ["Dermatology", 11.8, 8.0], ["Orthopaedics", 11.7, 8.0], ["Neurology", 11.6, 8.0], ["Cardiology", 11.6, 8.0], ["Gynaecology", 11.6, 8.0], ["Endocrinology", 11.5, 8.0], ["General Physician", 11.5, 8.0], ["Gastroenterology", 11.4, 8.0], ["Pulmonology", 11.4, 8.0], ["ENT", 11.3, 8.0], ["Psychiatry", 11.3, 8.0], ["Paediatrics", 11.2, 7.0]], "wait_by_time": [["Afternoon", 11.6, 8.0], ["Evening", 11.6, 8.0], ["Morning", 11.5, 8.0]], "duration_satisfaction": {"r": -0.0035, "p": 0.4098783351103726, "band_labels": ["\u226410 min", "11-20 min", "21-30 min", "31+ min"], "band_values": [4.07, 4.07, 4.07, 4.07], "scatter": [[13.0, 4.3], [39.0, 4.5], [18.0, 3.2], [17.0, 3.2], [10.0, 5.0], [17.0, 3.7], [15.0, 4.5], [31.0, 3.8], [26.0, 5.0], [30.0, 4.6], [12.0, 4.8], [35.0, 5.0], [23.0, 4.9], [17.0, 3.2], [24.0, 3.2], [9.0, 2.9], [23.0, 3.4], [10.0, 3.9], [32.0, 4.3], [5.0, 4.9], [17.0, 3.6], [14.0, 3.8], [19.0, 5.0], [18.0, 3.4], [7.0, 3.7], [22.0, 3.4], [31.0, 5.0], [17.0, 4.1], [31.0, 4.7], [21.0, 3.1], [10.0, 4.4], [7.0, 3.2], [12.0, 3.6], [5.0, 4.4], [20.0, 2.7], [17.0, 3.5], [29.0, 4.5], [31.0, 3.8], [22.0, 4.6], [34.0, 3.7], [6.0, 5.0], [10.0, 2.9], [10.0, 4.1], [7.0, 4.1], [24.0, 3.7], [12.0, 2.0], [13.0, 2.7], [23.0, 3.3], [11.0, 5.0], [19.0, 4.8], [21.0, 4.3], [17.0, 3.9], [27.0, 3.6], [5.0, 4.7], [17.0, 5.0], [20.0, 4.7], [22.0, 4.9], [27.0, 5.0], [23.0, 3.2], [14.0, 3.8], [6.0, 3.2], [6.0, 5.0], [34.0, 3.9], [17.0, 3.8], [14.0, 4.4], [10.0, 3.9], [12.0, 5.0], [17.0, 3.0], [23.0, 3.8], [17.0, 5.0], [28.0, 2.6], [15.0, 4.4], [15.0, 4.0], [23.0, 3.3], [10.0, 3.6], [20.0, 3.6], [13.0, 4.2], [25.0, 2.9], [19.0, 3.0], [13.0, 4.3], [9.0, 4.6], [29.0, 3.4], [31.0, 3.4], [18.0, 4.4], [22.0, 3.0], [26.0, 4.3], [36.0, 4.1], [29.0, 4.7], [15.0, 5.0], [8.0, 4.2], [13.0, 5.0], [32.0, 4.1], [27.0, 4.3], [35.0, 5.0], [25.0, 3.5], [25.0, 3.4], [20.0, 5.0], [12.0, 4.0], [20.0, 4.9], [10.0, 3.9], [11.0, 3.4], [20.0, 3.3], [17.0, 3.5], [5.0, 2.1], [6.0, 4.6], [17.0, 4.1], [33.0, 3.8], [20.0, 5.0], [8.0, 4.5], [37.0, 3.5], [24.0, 4.3], [23.0, 4.3], [36.0, 4.8], [13.0, 3.9], [34.0, 3.3], [8.0, 3.6], [22.0, 5.0], [30.0, 3.2], [12.0, 3.6], [20.0, 5.0], [17.0, 4.4], [20.0, 3.1], [15.0, 3.5], [17.0, 4.3], [21.0, 4.6], [12.0, 2.6], [34.0, 4.1], [23.0, 4.2], [22.0, 4.5], [32.0, 3.3], [22.0, 5.0], [11.0, 3.5], [24.0, 4.3], [27.0, 4.0], [15.0, 3.4], [18.0, 4.7], [15.0, 3.7], [26.0, 4.5], [11.0, 5.0], [11.0, 3.9], [26.0, 3.1], [11.0, 3.6], [12.0, 3.8], [15.0, 5.0], [40.0, 3.4], [26.0, 4.3], [17.0, 3.1], [22.0, 3.7], [23.0, 4.7], [22.0, 4.8], [16.0, 3.3], [29.0, 4.9], [8.0, 4.2], [16.0, 4.3], [11.0, 4.4], [14.0, 4.1], [22.0, 3.6], [32.0, 4.8], [33.0, 2.6], [16.0, 4.0], [13.0, 4.7], [31.0, 4.3], [24.0, 2.8], [12.0, 3.3], [31.0, 2.2], [20.0, 2.9], [22.0, 5.0], [27.0, 3.7], [9.0, 3.9], [8.0, 5.0], [18.0, 4.3], [10.0, 2.6], [17.0, 4.0], [23.0, 4.0], [19.0, 4.8], [5.0, 4.3], [41.0, 3.9], [28.0, 4.2], [6.0, 4.6], [16.0, 3.3], [17.0, 3.5], [11.0, 4.4], [14.0, 4.0], [13.0, 3.7], [33.0, 3.4], [28.0, 4.7], [12.0, 3.1], [12.0, 5.0], [15.0, 5.0], [32.0, 4.5], [29.0, 3.2], [5.0, 3.6], [7.0, 3.4], [14.0, 3.3], [12.0, 4.7], [32.0, 4.9], [34.0, 4.1], [9.0, 2.8], [7.0, 3.7], [13.0, 5.0], [29.0, 3.4], [25.0, 4.2], [28.0, 4.0], [23.0, 4.4], [15.0, 4.2], [14.0, 3.9], [7.0, 4.9], [9.0, 3.9], [19.0, 3.9], [20.0, 4.2], [5.0, 3.3], [24.0, 4.1], [23.0, 3.9], [14.0, 4.6], [10.0, 4.5], [8.0, 4.6], [19.0, 4.2], [5.0, 4.3], [33.0, 5.0], [5.0, 4.3], [29.0, 4.0], [15.0, 4.7], [30.0, 3.8], [10.0, 4.7], [27.0, 5.0], [15.0, 4.5], [19.0, 4.2], [22.0, 4.0], [19.0, 4.3], [26.0, 4.8], [6.0, 4.8], [7.0, 2.5], [8.0, 2.9], [5.0, 5.0], [5.0, 4.2], [10.0, 4.3], [35.0, 4.3], [34.0, 2.4], [8.0, 3.9], [8.0, 4.4], [19.0, 3.5], [13.0, 3.9], [19.0, 3.8], [16.0, 4.1], [5.0, 3.6], [36.0, 3.5], [25.0, 4.1], [8.0, 3.1], [20.0, 4.3], [32.0, 2.9], [8.0, 4.3], [35.0, 3.5], [14.0, 4.6], [5.0, 3.7], [11.0, 4.2], [21.0, 4.4], [8.0, 4.4], [17.0, 5.0], [27.0, 4.1], [7.0, 3.4], [30.0, 3.2], [15.0, 5.0], [18.0, 4.6], [18.0, 3.5], [14.0, 4.8], [34.0, 4.9], [16.0, 4.7], [25.0, 2.2], [18.0, 4.3], [19.0, 4.1], [28.0, 3.6], [27.0, 4.4], [9.0, 4.2], [27.0, 4.2], [20.0, 3.1], [29.0, 5.0], [5.0, 4.2], [32.0, 2.8], [31.0, 3.7], [26.0, 4.2], [38.0, 3.0], [20.0, 5.0], [20.0, 4.1], [8.0, 4.2], [16.0, 3.7], [16.0, 4.1], [28.0, 4.9], [16.0, 3.5], [24.0, 3.9], [40.0, 2.9], [12.0, 4.7], [17.0, 4.3], [25.0, 4.6], [5.0, 4.2], [6.0, 2.5], [25.0, 4.5], [29.0, 4.7], [15.0, 3.7], [24.0, 4.2], [12.0, 5.0], [16.0, 3.0], [12.0, 3.9], [20.0, 3.6], [25.0, 3.8], [6.0, 3.5], [25.0, 4.7], [5.0, 4.1], [14.0, 4.7], [6.0, 4.6], [8.0, 3.8], [17.0, 4.6], [14.0, 4.2], [15.0, 5.0], [27.0, 5.0], [12.0, 4.4], [7.0, 3.1], [5.0, 5.0], [15.0, 5.0], [23.0, 4.3], [17.0, 3.8], [8.0, 4.3], [15.0, 5.0], [15.0, 4.3], [40.0, 4.3], [19.0, 4.1], [23.0, 5.0], [8.0, 3.6], [6.0, 3.2], [15.0, 2.5], [16.0, 4.4], [14.0, 2.7], [10.0, 4.3], [8.0, 2.3], [31.0, 3.8], [19.0, 3.4], [14.0, 4.0], [15.0, 4.2], [16.0, 4.4], [19.0, 3.3], [17.0, 4.0], [5.0, 3.7], [27.0, 3.9], [11.0, 4.6], [26.0, 4.9], [15.0, 5.0], [19.0, 3.3], [17.0, 3.9], [20.0, 4.3], [19.0, 4.7], [31.0, 4.2], [32.0, 4.6], [5.0, 3.7], [23.0, 4.6], [29.0, 4.5], [23.0, 3.8], [9.0, 3.8], [9.0, 2.0], [25.0, 4.2], [32.0, 3.7], [36.0, 2.1], [34.0, 3.7], [6.0, 5.0], [5.0, 4.1], [16.0, 4.3], [5.0, 4.5], [15.0, 4.1], [22.0, 4.4], [10.0, 4.5], [11.0, 4.5], [25.0, 3.1], [8.0, 3.8], [10.0, 3.5], [28.0, 4.4], [26.0, 3.8], [22.0, 4.5], [5.0, 3.8], [35.0, 3.8], [14.0, 3.5], [16.0, 3.8], [28.0, 4.9], [15.0, 4.1], [14.0, 5.0], [19.0, 4.4], [38.0, 4.5], [17.0, 3.9], [9.0, 4.7], [15.0, 3.6], [15.0, 4.5], [10.0, 3.7], [22.0, 3.2], [11.0, 1.7], [29.0, 5.0], [18.0, 3.4], [27.0, 4.5], [22.0, 3.0], [29.0, 4.9], [11.0, 4.2], [35.0, 4.4], [5.0, 4.7], [27.0, 4.7], [25.0, 4.6], [22.0, 3.4], [16.0, 4.6], [33.0, 5.0], [21.0, 4.4], [23.0, 4.4], [33.0, 3.8], [14.0, 4.2], [22.0, 3.7], [22.0, 4.8], [38.0, 3.5], [17.0, 4.4], [19.0, 2.8], [19.0, 2.8], [29.0, 4.4], [19.0, 5.0], [23.0, 4.6], [7.0, 3.6], [11.0, 3.7], [24.0, 4.2], [7.0, 2.9], [22.0, 3.1], [24.0, 3.8], [6.0, 3.5], [37.0, 5.0], [12.0, 4.1], [7.0, 3.7], [31.0, 3.7], [14.0, 5.0], [5.0, 3.6], [14.0, 4.5], [21.0, 4.2], [14.0, 4.5], [10.0, 4.7], [14.0, 4.0], [21.0, 4.0], [14.0, 3.6], [14.0, 3.8], [29.0, 3.8], [17.0, 4.0], [7.0, 5.0], [17.0, 2.9], [14.0, 4.7], [13.0, 3.5], [20.0, 4.0], [23.0, 4.4], [23.0, 3.4], [27.0, 3.2], [31.0, 4.0], [14.0, 4.2], [8.0, 4.0], [21.0, 3.7], [28.0, 3.0], [16.0, 3.5], [35.0, 4.6], [23.0, 3.9], [14.0, 4.3], [5.0, 3.2], [26.0, 4.8], [21.0, 4.9], [34.0, 3.5], [11.0, 5.0], [37.0, 5.0], [10.0, 4.0], [28.0, 4.7], [17.0, 3.0], [10.0, 4.3], [34.0, 4.0], [10.0, 4.4], [18.0, 2.6], [22.0, 3.9], [28.0, 2.3], [20.0, 4.6], [9.0, 4.5], [27.0, 4.3], [30.0, 4.3], [18.0, 3.7], [33.0, 2.7], [30.0, 4.6], [18.0, 3.6], [14.0, 5.0], [15.0, 4.3], [32.0, 4.9], [22.0, 3.8], [7.0, 4.3], [13.0, 3.0], [8.0, 4.3], [8.0, 4.1], [9.0, 3.1], [14.0, 3.7], [20.0, 5.0], [21.0, 3.9], [9.0, 4.1], [34.0, 3.7], [9.0, 4.1], [17.0, 3.9], [22.0, 4.7], [16.0, 4.3], [10.0, 4.5], [10.0, 4.4], [7.0, 3.6], [23.0, 4.2], [8.0, 3.3], [16.0, 2.7], [29.0, 4.4], [8.0, 3.6], [8.0, 4.9], [23.0, 4.6], [11.0, 4.5], [25.0, 3.9], [20.0, 4.4], [18.0, 3.0], [15.0, 4.5], [15.0, 4.0], [14.0, 3.4], [24.0, 3.8], [22.0, 3.6], [10.0, 4.0], [32.0, 4.7], [25.0, 4.0], [20.0, 4.0], [18.0, 3.4], [16.0, 4.6], [26.0, 4.5], [11.0, 4.1], [33.0, 3.7], [20.0, 5.0], [22.0, 5.0], [10.0, 4.4], [5.0, 5.0], [5.0, 4.2], [26.0, 5.0], [14.0, 3.1], [7.0, 4.2], [34.0, 5.0], [8.0, 3.9], [11.0, 4.2], [33.0, 4.3], [14.0, 3.7], [10.0, 3.8], [7.0, 3.9], [20.0, 4.4], [5.0, 3.5], [21.0, 4.6], [16.0, 4.0], [23.0, 4.2], [35.0, 4.4], [25.0, 4.5], [33.0, 3.5], [18.0, 4.4], [13.0, 3.4], [23.0, 3.9], [13.0, 5.0], [5.0, 5.0], [22.0, 4.0], [25.0, 2.9], [26.0, 5.0], [5.0, 4.0], [22.0, 3.9], [9.0, 4.1], [6.0, 3.4], [6.0, 5.0], [11.0, 3.3], [15.0, 3.3], [21.0, 3.6], [25.0, 2.7], [27.0, 4.6], [14.0, 3.6], [5.0, 4.7], [11.0, 4.9], [10.0, 2.7], [15.0, 4.5], [9.0, 5.0], [20.0, 2.6], [15.0, 3.8], [9.0, 3.6], [21.0, 4.4], [25.0, 4.5], [16.0, 3.9], [27.0, 4.0], [26.0, 3.7], [10.0, 4.4], [27.0, 5.0], [38.0, 4.6], [11.0, 4.0], [13.0, 3.2], [27.0, 4.7], [16.0, 4.1], [13.0, 3.6], [31.0, 4.8], [38.0, 3.4], [20.0, 5.0], [40.0, 4.9], [13.0, 4.0], [6.0, 5.0], [7.0, 4.1], [18.0, 4.8], [18.0, 4.5], [26.0, 3.2], [23.0, 4.2], [17.0, 3.3], [33.0, 3.4], [20.0, 2.4], [16.0, 4.4], [12.0, 4.2], [31.0, 4.7], [30.0, 3.9], [20.0, 3.2], [13.0, 5.0], [11.0, 3.5], [5.0, 3.4], [28.0, 3.5], [19.0, 4.4], [5.0, 3.7], [14.0, 3.5], [16.0, 2.8], [31.0, 3.9], [25.0, 3.7], [5.0, 3.2], [28.0, 3.5], [23.0, 4.8], [15.0, 4.5], [21.0, 4.2], [10.0, 5.0], [15.0, 3.9], [25.0, 3.5], [8.0, 3.8], [16.0, 4.6], [17.0, 2.8], [8.0, 4.5], [27.0, 4.1], [13.0, 3.8], [28.0, 4.8], [5.0, 3.3], [8.0, 3.6], [13.0, 4.2], [16.0, 2.4], [6.0, 3.7], [15.0, 2.5], [13.0, 2.5], [7.0, 4.0], [25.0, 3.7], [16.0, 2.8], [7.0, 3.0], [26.0, 4.3], [27.0, 4.6], [28.0, 5.0], [28.0, 5.0], [14.0, 3.5], [20.0, 4.5], [6.0, 3.3], [10.0, 3.3], [26.0, 5.0], [8.0, 3.3], [14.0, 3.7], [22.0, 4.0], [28.0, 4.4], [30.0, 2.8], [5.0, 3.2], [17.0, 4.5], [16.0, 3.4], [11.0, 4.3], [33.0, 5.0], [29.0, 3.8], [33.0, 3.8], [18.0, 4.2], [20.0, 4.6], [13.0, 3.2], [9.0, 4.2], [17.0, 4.7], [14.0, 5.0], [24.0, 5.0], [5.0, 4.7], [22.0, 2.9], [9.0, 2.7], [36.0, 4.7], [23.0, 4.0], [5.0, 2.9], [15.0, 4.2], [26.0, 5.0], [32.0, 3.6], [38.0, 3.6], [22.0, 4.3], [8.0, 3.5], [11.0, 3.8], [24.0, 2.9], [8.0, 4.6], [14.0, 3.8], [12.0, 4.0], [36.0, 3.0], [10.0, 4.3], [11.0, 2.5], [31.0, 4.7], [25.0, 4.5], [17.0, 3.9], [28.0, 5.0], [22.0, 4.7], [27.0, 4.1], [5.0, 4.9], [11.0, 4.4], [5.0, 4.1], [25.0, 3.7], [16.0, 4.6], [25.0, 5.0], [12.0, 3.5], [15.0, 3.1], [11.0, 4.9], [23.0, 3.6], [34.0, 4.4], [32.0, 3.9], [15.0, 3.4], [22.0, 5.0], [22.0, 4.8], [5.0, 4.1], [13.0, 3.8], [12.0, 4.7], [22.0, 4.0], [5.0, 5.0], [13.0, 3.0], [13.0, 4.8], [19.0, 4.7], [8.0, 4.2], [11.0, 3.2], [10.0, 4.7], [35.0, 4.1], [27.0, 3.9], [16.0, 3.7], [33.0, 3.8], [27.0, 4.5], [19.0, 4.2], [25.0, 4.5], [5.0, 3.4], [7.0, 5.0], [5.0, 4.3], [19.0, 4.1], [14.0, 5.0], [16.0, 3.1], [6.0, 3.5], [14.0, 4.6], [6.0, 3.8], [20.0, 4.4], [24.0, 4.5], [25.0, 5.0], [31.0, 4.1], [5.0, 4.2], [5.0, 3.6], [26.0, 4.3], [20.0, 3.7], [32.0, 4.5], [27.0, 3.5], [20.0, 3.4], [32.0, 4.0], [20.0, 4.6], [28.0, 4.2], [32.0, 3.1], [29.0, 4.1], [8.0, 4.3], [7.0, 3.9], [20.0, 3.4], [17.0, 3.6], [18.0, 3.3], [19.0, 3.8], [9.0, 5.0], [16.0, 4.0], [29.0, 2.9], [15.0, 3.9], [6.0, 2.8], [10.0, 3.9], [26.0, 5.0], [18.0, 5.0], [20.0, 5.0], [14.0, 4.0], [5.0, 4.7], [22.0, 2.9], [27.0, 4.2], [6.0, 3.6], [16.0, 3.8], [21.0, 3.1], [14.0, 3.0], [17.0, 3.3], [15.0, 4.4], [21.0, 3.7], [19.0, 3.4], [10.0, 4.8], [11.0, 4.2], [21.0, 4.5], [7.0, 4.3], [17.0, 4.2], [12.0, 3.1], [24.0, 3.9], [32.0, 4.5], [12.0, 4.0], [24.0, 3.9], [5.0, 3.5], [13.0, 4.7], [30.0, 4.7], [5.0, 4.4], [15.0, 4.5], [17.0, 4.3], [7.0, 3.4], [30.0, 4.1], [25.0, 4.6], [21.0, 4.1], [31.0, 4.6], [9.0, 5.0], [6.0, 4.1], [20.0, 3.9], [30.0, 4.6], [8.0, 4.7], [9.0, 3.6], [24.0, 4.0], [16.0, 4.7], [34.0, 3.6], [10.0, 3.5], [17.0, 3.8], [18.0, 3.6], [23.0, 4.0], [25.0, 3.6], [12.0, 4.7], [16.0, 5.0], [17.0, 5.0], [15.0, 5.0], [7.0, 3.8], [6.0, 3.3], [34.0, 3.3], [38.0, 3.8], [10.0, 4.9], [12.0, 3.6], [20.0, 3.4], [11.0, 3.5], [22.0, 4.8], [24.0, 4.1], [38.0, 4.1], [15.0, 4.2], [27.0, 5.0], [26.0, 5.0], [35.0, 4.6], [5.0, 3.2], [22.0, 4.1], [12.0, 4.3], [17.0, 3.3], [37.0, 3.6], [15.0, 2.8], [9.0, 4.7], [14.0, 4.7], [20.0, 2.8], [28.0, 4.4], [29.0, 3.3], [37.0, 5.0], [10.0, 5.0], [16.0, 2.9], [30.0, 4.6], [20.0, 4.0], [13.0, 3.8], [23.0, 3.7], [19.0, 3.2], [29.0, 4.1], [32.0, 4.1], [12.0, 5.0], [16.0, 5.0], [24.0, 3.6], [25.0, 3.8], [15.0, 4.7], [6.0, 3.6], [36.0, 5.0], [10.0, 5.0], [29.0, 4.6], [5.0, 3.9], [22.0, 4.7], [14.0, 5.0], [24.0, 4.7], [33.0, 2.6], [24.0, 4.4], [16.0, 2.8], [22.0, 4.4], [17.0, 5.0], [11.0, 4.5], [14.0, 4.1], [22.0, 4.5], [7.0, 2.6], [15.0, 4.0], [20.0, 3.9], [36.0, 4.9], [24.0, 3.2], [13.0, 5.0], [17.0, 4.0], [12.0, 4.6], [13.0, 4.9], [31.0, 3.4], [19.0, 4.0], [8.0, 3.0], [10.0, 5.0], [9.0, 2.9], [29.0, 4.7], [31.0, 4.7], [12.0, 3.4], [21.0, 4.9], [17.0, 5.0], [33.0, 4.3], [29.0, 4.4], [15.0, 3.2], [22.0, 3.3], [9.0, 4.6], [19.0, 3.7], [11.0, 5.0], [27.0, 4.4], [18.0, 4.5], [26.0, 4.2], [10.0, 4.1], [14.0, 4.5], [20.0, 4.0], [20.0, 4.5], [32.0, 4.1], [31.0, 3.2], [18.0, 3.5], [30.0, 4.7], [7.0, 3.2], [26.0, 4.3], [21.0, 5.0], [7.0, 4.0], [23.0, 5.0], [11.0, 3.9], [28.0, 3.1], [20.0, 4.4], [15.0, 3.6], [29.0, 4.2], [18.0, 4.2], [31.0, 4.7], [6.0, 4.7], [10.0, 3.8], [17.0, 4.8], [18.0, 4.3], [26.0, 3.2], [9.0, 4.6], [27.0, 4.4], [22.0, 4.1], [11.0, 3.1], [32.0, 4.9], [29.0, 3.1], [15.0, 3.2], [15.0, 4.3], [14.0, 4.1], [5.0, 3.7], [8.0, 4.3], [13.0, 4.8], [26.0, 4.6], [33.0, 3.5], [35.0, 5.0], [24.0, 5.0], [11.0, 3.8], [11.0, 3.4], [5.0, 4.3], [19.0, 3.6], [11.0, 4.5], [5.0, 4.8], [8.0, 5.0], [20.0, 4.5], [15.0, 5.0], [25.0, 4.1], [12.0, 4.9], [7.0, 3.4], [21.0, 3.7], [37.0, 4.0], [20.0, 3.9], [18.0, 4.4], [16.0, 3.9], [32.0, 4.5], [16.0, 3.4], [5.0, 4.6], [5.0, 4.0], [25.0, 3.9], [14.0, 3.6], [28.0, 3.0], [15.0, 3.8], [5.0, 3.7], [18.0, 4.7], [5.0, 3.1], [18.0, 3.5], [27.0, 4.5], [18.0, 4.2], [5.0, 4.7], [24.0, 5.0], [20.0, 3.3], [23.0, 3.9], [14.0, 4.6], [17.0, 5.0], [5.0, 3.5], [13.0, 5.0], [9.0, 4.1], [25.0, 5.0], [20.0, 3.9], [20.0, 3.9], [15.0, 2.8], [17.0, 4.6], [7.0, 4.2], [33.0, 3.6], [18.0, 4.4], [32.0, 2.4], [14.0, 4.5], [6.0, 4.1], [5.0, 4.2], [27.0, 4.1], [25.0, 2.4], [16.0, 5.0], [14.0, 3.3], [15.0, 5.0], [12.0, 4.3], [12.0, 3.5], [13.0, 1.7], [13.0, 5.0], [12.0, 4.9], [34.0, 3.6], [32.0, 3.7], [33.0, 5.0], [19.0, 3.9], [10.0, 4.2], [23.0, 4.6], [10.0, 4.3], [11.0, 3.4], [9.0, 3.1], [11.0, 2.8], [27.0, 4.1], [12.0, 3.7], [24.0, 4.4], [7.0, 3.6], [8.0, 3.6], [15.0, 4.6], [18.0, 3.9], [17.0, 3.8], [10.0, 3.7], [32.0, 2.8], [27.0, 4.1], [11.0, 3.9], [23.0, 3.9], [7.0, 4.6], [21.0, 4.7], [17.0, 3.6], [15.0, 4.4], [11.0, 3.8], [13.0, 4.3], [15.0, 4.5], [10.0, 5.0], [28.0, 4.3], [11.0, 4.9], [18.0, 4.7], [24.0, 2.6], [20.0, 4.4], [25.0, 5.0], [9.0, 5.0], [21.0, 4.6], [19.0, 4.3], [24.0, 4.1], [14.0, 4.5], [21.0, 3.2], [5.0, 5.0], [28.0, 3.5], [24.0, 4.7], [20.0, 3.0], [29.0, 3.9], [11.0, 4.2], [5.0, 3.0], [9.0, 4.7], [33.0, 5.0], [18.0, 4.7], [39.0, 3.6], [24.0, 4.3], [20.0, 3.3], [16.0, 4.1], [16.0, 3.5], [42.0, 4.6], [9.0, 4.3], [14.0, 4.1], [19.0, 4.7], [17.0, 4.5], [16.0, 3.5], [32.0, 4.0], [19.0, 3.9], [5.0, 3.3], [27.0, 3.9], [30.0, 3.3], [20.0, 3.7], [27.0, 5.0], [19.0, 5.0], [7.0, 3.4], [30.0, 3.6], [11.0, 3.4], [29.0, 3.5], [16.0, 3.4], [12.0, 3.6], [30.0, 5.0], [16.0, 3.3], [9.0, 4.4], [36.0, 2.9], [13.0, 4.0], [15.0, 4.1], [30.0, 3.4], [19.0, 4.0], [36.0, 4.3], [12.0, 3.7], [10.0, 4.7], [12.0, 3.4], [31.0, 4.2], [25.0, 3.6], [31.0, 3.9], [6.0, 4.4], [27.0, 3.1], [23.0, 4.1], [6.0, 3.6], [31.0, 3.1], [5.0, 4.1], [18.0, 3.1], [6.0, 3.8], [16.0, 3.5], [35.0, 3.4], [21.0, 4.2], [28.0, 4.5], [9.0, 4.0], [22.0, 3.3], [20.0, 4.6], [11.0, 3.8], [27.0, 4.1], [16.0, 3.5], [28.0, 4.5], [12.0, 4.7], [14.0, 4.6], [33.0, 4.9], [11.0, 4.3], [12.0, 3.8], [5.0, 3.8], [18.0, 4.4], [24.0, 4.8], [22.0, 3.3], [20.0, 2.9], [7.0, 4.4], [6.0, 4.2], [5.0, 3.8], [12.0, 3.9], [22.0, 5.0], [18.0, 4.1], [19.0, 3.9], [10.0, 3.7], [29.0, 4.5], [36.0, 4.5], [18.0, 4.3], [12.0, 4.1], [7.0, 4.7], [25.0, 4.0], [21.0, 4.2], [16.0, 3.7], [20.0, 5.0], [23.0, 3.9], [16.0, 3.4], [9.0, 3.7], [23.0, 3.7], [10.0, 4.9], [28.0, 3.0], [10.0, 3.8], [22.0, 5.0], [30.0, 4.5], [15.0, 3.7], [8.0, 4.8], [15.0, 4.8], [5.0, 3.7], [20.0, 3.4], [20.0, 4.7], [5.0, 3.4], [31.0, 4.1], [8.0, 5.0], [22.0, 4.9], [19.0, 4.6], [5.0, 4.4], [31.0, 4.6], [17.0, 3.7], [10.0, 2.4], [10.0, 3.6], [22.0, 4.9], [23.0, 2.9], [30.0, 3.5], [33.0, 4.1], [10.0, 3.5], [8.0, 3.8], [13.0, 4.9], [5.0, 4.2], [12.0, 4.3], [10.0, 4.2], [32.0, 4.1], [5.0, 3.7], [42.0, 4.7], [11.0, 3.6], [26.0, 5.0], [9.0, 4.5], [28.0, 4.0], [8.0, 3.4], [16.0, 3.9], [9.0, 3.2], [27.0, 4.5], [38.0, 2.5], [15.0, 3.8], [5.0, 5.0], [23.0, 3.2]]}, "experience_fee": {"r": 0.278, "p": 4.326100955329754e-07, "band_labels": ["2-5 yrs", "6-10 yrs", "11-20 yrs", "21+ yrs"], "band_values": [1320.0, 1445.0, 1524.0, 1850.0], "scatter": [[12, 2300], [25, 1200], [13, 700], [31, 1000], [5, 600], [13, 1400], [23, 2100], [31, 2300], [10, 1700], [12, 700], [10, 2000], [23, 1300], [8, 2400], [6, 1200], [29, 1700], [29, 2100], [9, 600], [25, 1600], [18, 800], [13, 700], [6, 1500], [17, 1900], [8, 1200], [19, 2400], [13, 700], [25, 2200], [4, 800], [17, 1500], [2, 1000], [23, 1600], [17, 2200], [30, 2700], [2, 600], [19, 700], [24, 2700], [15, 1300], [20, 1500], [23, 1900], [21, 1900], [18, 1600], [13, 1900], [22, 1400], [20, 2000], [6, 1700], [5, 1100], [19, 1100], [11, 2000], [9, 700], [30, 1400], [18, 1600], [24, 1600], [20, 2600], [13, 700], [8, 1600], [10, 2200], [23, 3300], [20, 2600], [10, 2200], [7, 2600], [20, 2300], [24, 1800], [9, 1300], [2, 1500], [16, 2000], [18, 2000], [4, 1400], [11, 2100], [2, 600], [4, 1600], [16, 800], [7, 700], [25, 2100], [11, 2000], [26, 900], [4, 1300], [23, 1800], [10, 1300], [27, 800], [27, 2300], [24, 1600], [6, 2100], [21, 2300], [9, 1100], [28, 2800], [31, 2500], [6, 700], [31, 2600], [6, 1500], [15, 2200], [25, 1800], [16, 800], [12, 2300], [4, 1900], [19, 1200], [2, 1600], [7, 700], [8, 1600], [28, 3200], [30, 1900], [12, 1500], [14, 700], [6, 2000], [10, 700], [2, 1400], [22, 1900], [28, 2400], [22, 800], [18, 1900], [14, 2300], [17, 1600], [5, 2300], [8, 1300], [15, 2400], [20, 800], [11, 1300], [3, 1500], [18, 2500], [12, 700], [7, 1000], [7, 1900], [31, 1800], [12, 1600], [23, 2700], [3, 900], [4, 1600], [18, 1800], [22, 2600], [10, 1300], [9, 600], [8, 1600], [27, 2000], [2, 1800], [14, 2900], [8, 1500], [2, 600], [7, 600], [28, 2500], [27, 900], [30, 2400], [12, 2500], [16, 700], [17, 1500], [27, 1400], [9, 2100], [7, 1000], [19, 2200], [10, 1500], [8, 2100], [21, 2600], [23, 2200], [16, 1700], [4, 2000], [23, 1600], [18, 800], [30, 900], [25, 2500], [21, 1300], [9, 1100], [7, 1900], [10, 1800], [2, 1600], [7, 1400], [30, 2900], [21, 1100], [29, 900], [14, 1900], [25, 2500], [8, 700], [31, 2800], [5, 1000], [22, 2200], [3, 1300], [8, 1000], [6, 2500], [15, 800], [2, 900], [25, 3000], [10, 2000], [11, 700], [25, 3400], [19, 800], [2, 1600], [9, 700], [27, 1700], [14, 2300], [19, 1800], [2, 1300], [4, 1500], [27, 1900], [7, 2300], [16, 700], [15, 1800], [14, 1400], [25, 2600], [28, 1400], [26, 900], [5, 1900], [4, 600], [11, 1700], [4, 1200], [7, 900], [2, 1300], [22, 2400], [24, 1600], [16, 700], [4, 1800], [2, 1800], [13, 1000], [2, 1900], [16, 2700], [11, 1300], [28, 900], [2, 1600], [7, 2100], [13, 700], [30, 3600], [3, 1400], [10, 700], [18, 2200], [21, 800], [6, 1400], [22, 800], [29, 900], [19, 2300], [18, 700], [29, 800], [24, 3300], [24, 900], [15, 1600], [17, 800], [10, 2500], [14, 700], [19, 800], [20, 1400], [19, 2000], [12, 1200], [28, 2700], [25, 1300], [16, 2700], [11, 600], [14, 1500], [22, 2500], [5, 1300], [11, 700], [27, 800], [20, 800], [5, 600], [18, 1600], [16, 1500], [4, 1800], [6, 1800], [31, 1500], [26, 900], [8, 700], [13, 2600], [2, 1500], [22, 3200], [24, 800], [2, 500], [3, 600], [2, 1600], [8, 1500], [8, 2400], [23, 3300], [31, 1000], [20, 1500], [9, 1900], [17, 800], [31, 2700], [22, 2300], [26, 900], [20, 1800], [27, 1700], [16, 1600], [16, 1800], [29, 3500], [22, 800], [19, 1400], [5, 1700], [25, 900], [8, 600], [7, 600], [5, 600], [4, 500], [2, 800], [14, 1000], [30, 2600], [14, 1500], [13, 1500], [9, 1800], [31, 1000], [23, 1800], [24, 3300], [9, 600], [27, 2500], [19, 1200], [2, 2100], [14, 2900], [17, 700], [18, 800], [4, 1600], [13, 1900], [29, 900], [21, 1500], [18, 1100], [19, 800], [28, 2500], [4, 1300], [18, 800], [22, 800], [13, 1500], [16, 2000], [20, 2900], [28, 800], [25, 900], [21, 800], [26, 1400], [5, 2000], [20, 2000], [23, 800]]}};
+
+/* ---- shared chrome ---- */
+const INK_PRIMARY = '#ffffff';
+const INK_SECONDARY = '#c3c2b7';
+const INK_MUTED = '#898781';
+const GRID = '#2c2c2a';
+const BASELINE = '#383835';
+const SURF = '#1a1a19';
+const S = { blue:'#3987e5', orange:'#d95926', aqua:'#199e70', yellow:'#c98500', magenta:'#d55181', green:'#4caf50', violet:'#9085e9', red:'#e66767' };
+const CRIT = '#e66767', GOOD='#0ca30c', WARN='#fab219';
+
+Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+Chart.defaults.color = INK_SECONDARY;
+Chart.defaults.borderColor = GRID;
+
+function baseGrid(axis){
+  return { color: GRID, drawTicks:false };
+}
+function baseTicks(extra){ return Object.assign({ color: INK_MUTED, font:{size:11} }, extra||{}); }
+
+function seqColor(idx, n, hexLight, hexDark){
+  // simple two-point interpolation not needed; use fixed sequential ramp
+  return hexLight;
+}
+
+const SEQ_BLUE = ['#cde2fb','#9ec5f4','#6da7ec','#3987e5','#256abf','#184f95','#0d366b'];
+function seqRamp(n){
+  const out = [];
+  for(let i=0;i<n;i++){
+    const t = n<=1?0:i/(n-1);
+    const idx = Math.round(t*(SEQ_BLUE.length-1));
+    out.push(SEQ_BLUE[idx]);
+  }
+  return out;
+}
+
+function tooltipBase(){
+  return {
+    backgroundColor: '#242423', titleColor: INK_PRIMARY, bodyColor: INK_SECONDARY,
+    borderColor: 'rgba(255,255,255,0.12)', borderWidth:1, padding:10, cornerRadius:8,
+    titleFont:{weight:'600', size:12.5}, bodyFont:{size:12.5}
+  };
+}
+
+function hbar(id, labels, values, opts){
+  opts = opts||{};
+  const n = labels.length;
+  const colors = opts.colorFn ? labels.map((l,i)=>opts.colorFn(l,values[i],i)) : seqRamp(n).reverse();
+  return new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{ labels, datasets:[{ data: values, backgroundColor: colors, borderRadius:4, borderSkipped:false, barThickness: opts.thick||16 }] },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip: Object.assign(tooltipBase(), {
+        callbacks:{ label: (c)=> (opts.suffix? c.parsed.x+opts.suffix : c.parsed.x) + (opts.unit? ' '+opts.unit:'') }
+      }) },
+      scales:{
+        x:{ beginAtZero:true, grid: baseGrid('x'), ticks: baseTicks({ callback:(v)=> opts.xfmt? opts.xfmt(v): v }), title:{display: !!opts.xtitle, text: opts.xtitle||'', color: INK_MUTED, font:{size:11.5}} },
+        y:{ grid:{display:false}, ticks: baseTicks({font:{size:12}}) }
+      }
+    }
+  });
+}
+
+function vbar(id, labels, values, opts){
+  opts = opts||{};
+  const n = labels.length;
+  const colors = opts.colorFn ? labels.map((l,i)=>opts.colorFn(l,values[i],i)) : (opts.single? labels.map(()=>S.blue) : [S.blue,S.orange,S.aqua,S.yellow,S.magenta,S.green,S.violet,S.red].slice(0,n));
+  return new Chart(document.getElementById(id), {
+    type:'bar',
+    data:{ labels, datasets:[{ data: values, backgroundColor: colors, borderRadius:4, borderSkipped:false, maxBarThickness:56 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip: Object.assign(tooltipBase(), {
+        callbacks:{ label:(c)=> (opts.suffix? c.parsed.y+opts.suffix : c.parsed.y) }
+      }) },
+      scales:{
+        x:{ grid:{display:false}, ticks: baseTicks({ maxRotation: opts.rotate||0, font:{size:11.5} }) },
+        y:{ beginAtZero:true, grid: baseGrid('y'), ticks: baseTicks({ callback:(v)=> opts.yfmt? opts.yfmt(v): v }) }
+      }
+    }
+  });
+}
+
+/* ===== Q1 monthly line ===== */
+new Chart(document.getElementById('chartMonthly'), {
+  type:'line',
+  data:{ labels: DATA.monthly_volume.labels, datasets:[{
+    data: DATA.monthly_volume.values, borderColor: S.blue, backgroundColor: 'rgba(57,135,229,0.08)',
+    fill:true, tension:0.3, pointRadius:0, borderWidth:2
+  }]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip: tooltipBase() },
+    scales:{
+      x:{ grid:{display:false}, ticks:{ color:INK_MUTED, font:{size:10}, maxTicksLimit:12 } },
+      y:{ grid: baseGrid('y'), ticks:{ color:INK_MUTED, font:{size:11} }, title:{display:true,text:'Appointments / month', color:INK_MUTED, font:{size:11.5}} }
+    }
+  }
+});
+
+/* ===== Q1 quarterly grouped ===== */
+new Chart(document.getElementById('chartQuarterly'), {
+  type:'bar',
+  data:{
+    labels: DATA.quarterly_volume.quarters,
+    datasets: DATA.quarterly_volume.years.map((yr,i)=>({
+      label: String(yr), data: DATA.quarterly_volume.data[i],
+      backgroundColor: [S.blue,S.orange,S.aqua][i], borderRadius:4, borderSkipped:false, maxBarThickness:36
+    }))
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', align:'end', labels:{ color: INK_SECONDARY, boxWidth:10, boxHeight:10, font:{size:12} } }, tooltip: tooltipBase() },
+    scales:{ x:{ grid:{display:false}, ticks: baseTicks() }, y:{ beginAtZero:true, grid: baseGrid('y'), ticks: baseTicks() } }
+  }
+});
+
+/* ===== Q2 outcome donut ===== */
+new Chart(document.getElementById('chartOutcome'), {
+  type:'doughnut',
+  data:{ labels: DATA.outcome_split.labels, datasets:[{ data: DATA.outcome_split.values,
+    backgroundColor:[S.aqua, CRIT, S.yellow, INK_MUTED], borderColor: SURF, borderWidth:3 }]},
+  options:{ responsive:true, maintainAspectRatio:false, cutout:'62%',
+    plugins:{ legend:{ position:'right', labels:{ color:INK_SECONDARY, boxWidth:10, boxHeight:10, font:{size:12.5} } },
+      tooltip: Object.assign(tooltipBase(), { callbacks:{ label:(c)=>{
+        const tot = c.dataset.data.reduce((a,b)=>a+b,0);
+        return `${c.label}: ${c.parsed.toLocaleString()} (${(c.parsed/tot*100).toFixed(1)}%)`;
+      }}})}
+  }
+});
+
+/* ===== Q3 channel bar ===== */
+hbar('chartChannel', DATA.channel_volume.labels, DATA.channel_volume.values, { xfmt:(v)=> (v/1000)+'k' });
+
+/* ===== Q4 specialty / city no-show ===== */
+(function(){
+  const sp = DATA.specialty_ns;
+  hbar('chartSpecialtyNS', sp.map(d=>d.specialty), sp.map(d=>d.no_show_rate), {
+    suffix:'%', xtitle:'No-show rate (%)',
+    colorFn:(l,v)=> v>=20? CRIT : v>=15? WARN : GOOD
+  });
+  const ct = DATA.city_ns;
+  hbar('chartCityNS', ct.map(d=>d.city), ct.map(d=>d.no_show_rate), {
+    suffix:'%', xtitle:'No-show rate (%)',
+    colorFn:(l,v)=> v>=17? CRIT : v>=15? WARN : GOOD
+  });
+})();
+
+/* ===== Q5 lead time ===== */
+(function(){
+  const l = DATA.lead_ns;
+  vbar('chartLeadNS', l.map(d=>d.lead_time_group), l.map(d=>d.no_show_rate), {
+    suffix:'%', single:true,
+    colorFn:(lab,v)=> v>=18? CRIT: v>=15? WARN : GOOD
+  });
+})();
+
+/* ===== Q6 time of day + weekend combined ===== */
+(function(){
+  const t = DATA.time_of_day_ns, w = DATA.weekend_ns;
+  const labels = [...t.map(d=>d.time_of_day), ...w.map(d=>d.is_weekend)];
+  const values = [...t.map(d=>d.no_show_rate), ...w.map(d=>d.no_show_rate)];
+  vbar('chartTimeWeekend', labels, values, { suffix:'%', single:true, colorFn:(l,v)=> v>=18?CRIT:v>=15?WARN:GOOD });
+})();
+
+/* ===== Q7 type + channel combined ===== */
+(function(){
+  const ty = DATA.type_ns, ch = DATA.channel_ns;
+  const labels = [...ty.map(d=>d.appointment_type), ...ch.map(d=>d.booking_channel)];
+  const values = [...ty.map(d=>d.no_show_rate), ...ch.map(d=>d.no_show_rate)];
+  vbar('chartTypeChannel', labels, values, { suffix:'%', rotate:28, single:true, colorFn:(l,v)=> v>=20?CRIT:v>=15?WARN:GOOD });
+})();
+
+/* ===== Q8 reminder with delta ===== */
+(function(){
+  const r = DATA.reminder_ns;
+  const chart = vbar('chartReminder', r.map(d=>d.reminder_type), r.map(d=>d.no_show_rate), {
+    suffix:'%', single:true, colorFn:(l,v,i)=> [CRIT,WARN,S.aqua,GOOD][i]
+  });
+})();
+
+/* ===== Q9 prior no-show ===== */
+(function(){
+  const p = DATA.prior_ns;
+  vbar('chartPriorNS', p.map(d=>d.prior_no_show_group), p.map(d=>d.no_show_rate), {
+    suffix:'%', single:true, colorFn:(l,v)=> v>=25?CRIT:v>=18?WARN:GOOD
+  });
+})();
+
+/* ===== Q11 age / gender / chronic ===== */
+(function(){
+  const a = DATA.age_ns;
+  vbar('chartAgeNS', a.map(d=>d.age_group), a.map(d=>d.no_show_rate), { suffix:'%', rotate:28, single:true, colorFn:(l,v)=>v>=17?WARN:GOOD });
+  const g = DATA.gender_ns;
+  vbar('chartGenderNS', g.map(d=>d.patient_gender), g.map(d=>d.no_show_rate), { suffix:'%', single:true, colorFn:()=>S.blue });
+  const c = DATA.chronic_ns;
+  vbar('chartChronicNS', c.map(d=>d.chronic_flag), c.map(d=>d.no_show_rate), { suffix:'%', single:true, colorFn:()=>S.aqua });
+})();
+
+/* ===== Q12 visit reason volume + rate ===== */
+(function(){
+  const rv = DATA.reason_volume;
+  hbar('chartReasonVol', rv.labels, rv.values, { xfmt:(v)=>(v/1000)+'k', colorFn:()=>S.blue });
+  const rn = DATA.reason_ns;
+  hbar('chartReasonNS', rn.map(d=>d.visit_reason), rn.map(d=>d.no_show_rate), { suffix:'%', colorFn:()=>S.orange });
+})();
+
+/* ===== Q13 age box-ish (floating bar for IQR + median point) ===== */
+(function(){
+  const rows = DATA.age_distribution; // specialty, count, mean, std, min, 25%, 50%, 75%, max
+  const labels = rows.map(r=>r.specialty);
+  const iqr = rows.map(r=>[r['25%'], r['75%']]);
+  const whisk = rows.map(r=>[r.min, r.max]);
+  const median = rows.map(r=>r['50%']);
+  new Chart(document.getElementById('chartAgeBox'), {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'Min–Max', data: whisk, backgroundColor:'rgba(255,255,255,0.06)', borderColor: BASELINE, borderWidth:1, borderRadius:3, barThickness: 14 },
+      { label:'25th–75th pct', data: iqr, backgroundColor:[S.blue,S.aqua,S.violet].map(c=>c+'cc'), borderRadius:4, barThickness: 34 },
+      { label:'Median', data: median.map(m=>[m-0.6, m+0.6]), backgroundColor: INK_PRIMARY, barThickness:34, borderRadius:2 }
+    ]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', align:'end', labels:{ color:INK_SECONDARY, boxWidth:10, boxHeight:10, font:{size:11.5} } },
+        tooltip: Object.assign(tooltipBase(), { callbacks:{ label:(c)=>{
+          if(c.dataset.label==='Median') return 'Median: '+median[c.dataIndex];
+          if(c.dataset.label==='Min–Max') return `Range: ${whisk[c.dataIndex][0]}–${whisk[c.dataIndex][1]}`;
+          return `IQR: ${iqr[c.dataIndex][0]}–${iqr[c.dataIndex][1]}`;
+        }}})},
+      scales:{ x:{ beginAtZero:true, max:90, grid: baseGrid('x'), ticks: baseTicks(), title:{display:true,text:'Patient age',color:INK_MUTED,font:{size:11.5}} },
+        y:{ grid:{display:false}, ticks: baseTicks({font:{size:12.5}}) } }
+    }
+  });
+})();
+
+/* ===== Q14 revenue lost ===== */
+(function(){
+  const rows = DATA.revenue_lost.by_specialty; // [specialty, value]
+  hbar('chartRevenueLost', rows.map(r=>r[0]), rows.map(r=>Math.round(r[1])), {
+    xfmt:(v)=>'₹'+(v/100000).toFixed(1)+'L', colorFn:()=>CRIT
+  });
+})();
+
+/* ===== Q15 revenue by specialty / type ===== */
+(function(){
+  const rs = DATA.revenue_by_specialty;
+  hbar('chartRevSpecialty', rs.map(r=>r[0]), rs.map(r=>r[1]), { xfmt:(v)=>'₹'+v, colorFn:()=>S.aqua });
+  const rt = DATA.revenue_by_type;
+  vbar('chartRevType', rt.map(r=>r[0]), rt.map(r=>r[1]), { single:true, colorFn:()=>S.green, yfmt:(v)=>'₹'+v });
+})();
+
+/* ===== Q16 city revenue + payment mix ===== */
+(function(){
+  const rc = DATA.revenue_by_city;
+  hbar('chartRevCity', rc.map(r=>r[0]), rc.map(r=>Math.round(r[1])), { xfmt:(v)=>'₹'+(v/100000).toFixed(1)+'L', colorFn:()=>S.blue });
+  const pm = DATA.payment_mix;
+  new Chart(document.getElementById('chartPaymentMix'), {
+    type:'doughnut',
+    data:{ labels: pm.labels, datasets:[{ data: pm.values, backgroundColor:[S.blue,S.orange,S.aqua,S.yellow,S.magenta,S.green,S.violet], borderColor: SURF, borderWidth:3 }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'58%',
+      plugins:{ legend:{ position:'right', labels:{ color:INK_SECONDARY, boxWidth:10, boxHeight:10, font:{size:11.5} } },
+        tooltip: Object.assign(tooltipBase(), { callbacks:{ label:(c)=> `${c.label}: ${c.parsed}%` } }) }
+    }
+  });
+})();
+
+/* ===== Q17 insurance oop ===== */
+(function(){
+  const ins = DATA.insurance_oop;
+  vbar('chartInsuranceOOP', ins.map(d=> d.insurance_coverage==='Yes'?'Insured':'Not Insured'), ins.map(d=>d.avg_oop), {
+    single:true, colorFn:(l)=> l==='Insured'? GOOD: CRIT, yfmt:(v)=>'₹'+v
+  });
+})();
+
+/* ===== Q18 utilisation ===== */
+(function(){
+  const u = DATA.utilisation_by_specialty;
+  hbar('chartUtilisation', u.map(r=>r[0]), u.map(r=>r[1]), { suffix:'%', colorFn:()=>S.violet });
+})();
+
+/* ===== Q19 wait time ===== */
+(function(){
+  const ws = DATA.wait_by_specialty; // specialty, mean, median
+  hbar('chartWaitSpecialty', ws.map(r=>r[0]), ws.map(r=>r[1]), { unit:'min', colorFn:()=>S.orange, xtitle:'Avg wait (min)' });
+  const wt = DATA.wait_by_time;
+  vbar('chartWaitTime', wt.map(r=>r[0]), wt.map(r=>r[1]), { single:true, colorFn:()=>S.orange, yfmt:(v)=>v+' min' });
+})();
+
+/* ===== Q20 duration vs satisfaction scatter ===== */
+(function(){
+  const d = DATA.duration_satisfaction;
+  document.getElementById('durationCorrLabel').textContent = `Correlation r = ${d.r}, p = ${d.p.toFixed ? d.p.toFixed(3): d.p} — not statistically significant`;
+  new Chart(document.getElementById('chartDurationScatter'), {
+    type:'scatter',
+    data:{ datasets:[{ data: d.scatter.map(p=>({x:p[0], y:p[1]})), backgroundColor: 'rgba(57,135,229,0.35)', pointRadius:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip: tooltipBase() },
+      scales:{
+        x:{ title:{display:true, text:'Duration (min)', color:INK_MUTED, font:{size:11.5}}, grid: baseGrid('x'), ticks: baseTicks() },
+        y:{ title:{display:true, text:'Satisfaction score', color:INK_MUTED, font:{size:11.5}}, grid: baseGrid('y'), ticks: baseTicks(), min:0.5, max:5.5 }
+      }
+    }
+  });
+})();
+
+/* ===== Q21 experience vs fee scatter (real 320 doctors) ===== */
+(function(){
+  const d = DATA.experience_fee;
+  document.getElementById('feeCorrLabel').textContent = `Correlation r = ${d.r}, p < 0.0001 — statistically significant`;
+  new Chart(document.getElementById('chartExperienceScatter'), {
+    type:'scatter',
+    data:{ datasets:[{ data: d.scatter.map(p=>({x:p[0], y:p[1]})), backgroundColor: 'rgba(76,175,80,0.55)', pointRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip: tooltipBase() },
+      scales:{
+        x:{ title:{display:true, text:'Experience (years)', color:INK_MUTED, font:{size:11.5}}, grid: baseGrid('x'), ticks: baseTicks() },
+        y:{ title:{display:true, text:'Standard fee (₹)', color:INK_MUTED, font:{size:11.5}}, grid: baseGrid('y'), ticks: baseTicks() }
+      }
+    }
+  });
+})();
+
+/* ---- active nav highlight ---- */
+const sections = document.querySelectorAll('section.section');
+const navA = document.querySelectorAll('#navlinks a');
+const byId = {}; navA.forEach(a=> byId[a.getAttribute('href').slice(1)] = a);
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ navA.forEach(a=>a.classList.remove('active')); const a = byId[e.target.id]; if(a) a.classList.add('active'); } });
+}, { rootMargin: '-40% 0px -50% 0px' });
+sections.forEach(s=> obs.observe(s));
+</script>
+</body>
+</html>
+
+</body></html>
